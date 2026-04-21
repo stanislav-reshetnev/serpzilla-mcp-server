@@ -107,7 +107,8 @@ class SerpzillaClient:
         headers = {
             "Accept": "application/json",
             "Authorization": f"Bearer {self.jwt_token}",
-            "Cookie": f"AUTH_TICKET={self.auth_ticket}"
+            "Cookie": f"AUTH_TICKET={self.auth_ticket}",
+            "User-Agent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; Serpzilla-mcp-client/1.0",
         }
 
         if data is not None:
