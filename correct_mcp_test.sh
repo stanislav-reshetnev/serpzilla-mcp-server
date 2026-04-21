@@ -33,7 +33,7 @@ send_message() {
 
 ) | docker run -i --rm \
     --env-file .env \
-    serpzilla-mcp-stdio-server 2>/dev/null | while IFS= read -r line; do
+    serpzilla-mcp-stdio-server:latest 2>/dev/null | while IFS= read -r line; do
         # Format the output with jq if it is JSON
         if echo "$line" | jq -e . >/dev/null 2>&1; then
             echo "$line" | jq '.'

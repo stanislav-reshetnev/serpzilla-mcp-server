@@ -51,7 +51,7 @@ docker build -t serpzilla-mcp-stdio-server:latest .
 docker run -i --rm \
   -e SERPZILLA_LOGIN="your_email@example.com" \
   -e SERPZILLA_API_TOKEN="your_api_token" \
-  serpzilla-mcp-stdio-server <<EOF
+  serpzilla-mcp-stdio-server:latest <<EOF
 {"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"0.1.0","clientInfo":{"name":"cli-test","version":"1.0.0"},"capabilities":{}}}
 EOF
 ```
