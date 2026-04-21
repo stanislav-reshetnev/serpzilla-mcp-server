@@ -1,0 +1,10 @@
+services:
+  serpzilla-mcp:
+    build: .
+    image: serpzilla-mcp-server
+    container_name: serpzilla-mcp-stdio-server
+    environment:
+      - SERPZILLA_LOGIN=${SERPZILLA_LOGIN}
+      - SERPZILLA_API_TOKEN=${SERPZILLA_API_TOKEN}
+    stdin_open: true
+    tty: true
