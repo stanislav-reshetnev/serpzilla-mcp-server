@@ -6,6 +6,8 @@
 
 MCP (Model Context Protocol) server for Serpzilla API that enables purchasing guest post placements for SEO purposes. Implements stdio transport and is ready to run in a Docker container.
 
+A Docker image based on this repository is located at the URL: https://hub.docker.com/r/stanislavusbest/serpzilla-mcp-stdio-server/tags
+
 ## Features
 
 - 🔐 **Dual Authentication** - Automatic AUTH_TICKET and JWT token management
