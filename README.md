@@ -90,6 +90,7 @@ python server.py
 | `purchase_placement` | Buy placement on selected site |
 | `add_text` | Add text with anchor for URL promotion |
 | `get_project_placements` | Get all placements in a project |
+| `get_user_info` | Get current user information including account balance. To top up your balance, visit: https://passport.serpzilla.com/deposit/ |
 
 ## Usage Example
 

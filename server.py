@@ -353,6 +353,9 @@ async def handle_call_tool(
                 raise ValueError("project_id is required")
             result = await client.get_project_placements(project_id)
 
+        elif name == "get_user_info":
+            result = await client.get_user_info()
+
         elif name == "add_text":
             project_id = arguments.get("project_id")
             url = arguments.get("url")

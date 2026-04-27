@@ -425,6 +425,12 @@ class SerpzillaClient:
             params={"projectId": project_id}
         )
 
+    async def get_user_info(self) -> Dict[str, Any]:
+        """
+        Get current user information including account balance
+        """
+        return await self._make_request("GET", "/rest/User/info")
+
     async def close(self):
         """Close session"""
         if self.session and not self.session.closed:
