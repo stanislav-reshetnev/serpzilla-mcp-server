@@ -12,6 +12,7 @@ class SerpzillaClient:
     """Client for interacting with Serpzilla API"""
 
     BASE_URL = "https://app.serpzilla.com"
+    USER_AGENT = "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; Serpzilla-mcp-client/1.0"
 
     def __init__(self, login: str, api_token: str):
         self.login = login
@@ -23,7 +24,12 @@ class SerpzillaClient:
     async def _get_session(self) -> aiohttp.ClientSession:
         """Get or create aiohttp session"""
         if self.session is None or self.session.closed:
-            self.session = aiohttp.ClientSession()
+            # Set default headers for the whole session
+            default_headers = {
+                "User-Agent": self.USER_AGENT,
+                "Accept": "application/json",
+            }
+            self.session = aiohttp.ClientSession(headers=default_headers)
         return self.session
 
     async def authorize(self) -> Dict[str, Any]:
@@ -38,9 +44,12 @@ class SerpzillaClient:
             # Step 1: Get AUTH_TICKET
             logger.info(f"Authorizing user {self.login}")
             async with session.post(
-                f"{self.BASE_URL}/login",
-                json={"login": self.login, "apiToken": self.api_token},
-                headers={"Content-Type": "application/json", "Accept": "application/json"}
+                    f"{self.BASE_URL}/login",
+                    json={"login": self.login, "apiToken": self.api_token},
+                    headers={
+                        "Content-Type": "application/json",
+                        "Accept": "application/json",
+                    }
             ) as response:
                 if response.status != 200:
                     error_text = await response.text()
@@ -63,7 +72,7 @@ class SerpzillaClient:
                 f"{self.BASE_URL}/auth",
                 headers={
                     "Accept": "application/json",
-                    "Cookie": f"AUTH_TICKET={self.auth_ticket}"
+                    "Cookie": f"AUTH_TICKET={self.auth_ticket}",
                 }
             ) as response:
                 if response.status != 200:
@@ -108,7 +117,6 @@ class SerpzillaClient:
             "Accept": "application/json",
             "Authorization": f"Bearer {self.jwt_token}",
             "Cookie": f"AUTH_TICKET={self.auth_ticket}",
-            "User-Agent": "Mozilla/5.0 AppleWebKit/537.36 (KHTML, like Gecko); compatible; Serpzilla-mcp-client/1.0",
         }
 
         if data is not None:
@@ -140,6 +148,7 @@ class SerpzillaClient:
                     return await retry_response.json()
 
             return await response.json()
+        return None
 
     async def get_projects(self) -> Dict[str, Any]:
         """
