@@ -207,6 +207,12 @@ async def handle_list_tools() -> list[types.Tool]:
             }
         ),
         types.Tool(
+            name="get_user_info",
+            description="Get current user information including account balance (balance field). To top up your "
+                        "balance, visit: https://passport.serpzilla.com/deposit/",
+            inputSchema={"type": "object", "properties": {}, "required": []}
+        ),
+        types.Tool(
             name="add_text",
             description="Add text for promoting URL",
             inputSchema={
