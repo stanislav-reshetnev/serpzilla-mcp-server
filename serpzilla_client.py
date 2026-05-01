@@ -180,25 +180,6 @@ class SerpzillaClient:
             data={"domain": domain}
         )
 
-    async def add_texts(self, project_id: int, url: str, texts: List[Dict]) -> Dict[str, Any]:
-        """
-        Add texts for URL
-        """
-        data = {
-            "urlsTexts": [
-                {
-                    "url": url,
-                    "texts": texts
-                }
-            ]
-        }
-
-        return await self._make_request(
-            "POST",
-            f"/rest/Content/add/texts/projectId/{project_id}",
-            data=data
-        )
-
     async def search_sites(
         self,
         project_id: int,

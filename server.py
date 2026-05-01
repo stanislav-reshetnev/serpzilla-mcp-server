@@ -211,37 +211,6 @@ async def handle_list_tools() -> list[types.Tool]:
             description="Get current user information including account balance (balance field). To top up your "
                         "balance, visit: https://passport.serpzilla.com/deposit/",
             inputSchema={"type": "object", "properties": {}, "required": []}
-        ),
-        types.Tool(
-            name="add_text",
-            description="Add text for promoting URL",
-            inputSchema={
-                "type": "object",
-                "properties": {
-                    "project_id": {
-                        "type": "integer",
-                        "description": "Project ID"
-                    },
-                    "url": {
-                        "type": "string",
-                        "description": "Promoted URL"
-                    },
-                    "texts": {
-                        "type": "array",
-                        "description": "List of texts with anchors",
-                        "items": {
-                            "type": "object",
-                            "properties": {
-                                "text": {
-                                    "type": "string",
-                                    "description": "Text with anchor in format #a#anchor#/a#"
-                                }
-                            }
-                        }
-                    }
-                },
-                "required": ["project_id", "url", "texts"]
-            }
         )
     ]
 
@@ -361,16 +330,6 @@ async def handle_call_tool(
 
         elif name == "get_user_info":
             result = await client.get_user_info()
-
-        elif name == "add_text":
-            project_id = arguments.get("project_id")
-            url = arguments.get("url")
-            texts = arguments.get("texts")
-
-            if not project_id or not url or not texts:
-                raise ValueError("project_id, url and texts are required")
-
-            result = await client.add_texts(project_id, url, texts)
 
         else:
             raise ValueError(f"Unknown tool: {name}")
