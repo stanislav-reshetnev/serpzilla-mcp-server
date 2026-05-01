@@ -193,6 +193,27 @@ async def handle_list_tools() -> list[types.Tool]:
             }
         ),
         types.Tool(
+            name="add_article",
+            description="Create a new Guest Post article (Advertiser's Article) for a project. "
+                        "Returns articleId and urlId needed for purchase.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "project_id": {"type": "integer", "description": "Project ID"},
+                    "url": {"type": "string", "description": "Promoted URL (e.g., https://example.com)"},
+                    "title": {"type": "string", "description": "Article title", "minLength": 2},
+                    "body": {"type": "string", "description": "Article HTML text, must contain at least one link",
+                             "maxLength": 64000},
+                    "meta_title": {"type": "string", "description": "META Title of the article"},
+                    "meta_description": {"type": "string", "description": "META Description", "default": ""},
+                    "meta_keywords": {"type": "string", "description": "META Keywords", "default": ""},
+                    "is_comments_disabled": {"type": "boolean", "description": "Disable comments", "default": False},
+                    "limit_max_usages": {"type": "integer", "description": "Maximum usage limit", "default": 1}
+                },
+                "required": ["project_id", "url", "title", "body", "meta_title"]
+            }
+        ),
+        types.Tool(
             name="get_project_placements",
             description="Get list of all placements in project",
             inputSchema={
@@ -235,6 +256,20 @@ async def handle_call_tool(
             if not domain:
                 raise ValueError("Domain is required")
             result = await client.create_project(domain)
+
+        elif name == "add_article":
+            project_id = arguments.get("project_id")
+            url = arguments.get("url")
+            title = arguments.get("title")
+            body = arguments.get("body")
+            meta_title = arguments.get("meta_title")
+            meta_description = arguments.get("meta_description", "")
+            meta_keywords = arguments.get("meta_keywords", "")
+            is_comments_disabled = arguments.get("is_comments_disabled", False)
+            limit_max_usages = arguments.get("limit_max_usages", 1)
+
+            result = await client.add_article(project_id, url, title, body, meta_title, meta_description, meta_keywords,
+                                              is_comments_disabled, limit_max_usages)
 
         elif name == "search_sites":
             project_id = arguments.get("project_id")

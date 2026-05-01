@@ -180,6 +180,34 @@ class SerpzillaClient:
             data={"domain": domain}
         )
 
+    async def add_article(
+        self,
+        project_id: int,
+        url: str,
+        title: str,
+        body: str,
+        meta_title: str,
+        meta_description: str = "",
+        meta_keywords: str = "",
+        is_comments_disabled: bool = False,
+        limit_max_usages: int = 1
+    ) -> Dict[str, Any]:
+        """
+        Create a new Guest Post article (Advertiser's Article)
+        Returns articleId, urlId, urlHref
+        """
+        data = {
+            "url": url,
+            "title": title,
+            "body": body,
+            "metaTitle": meta_title,
+            "metaDescription": meta_description,
+            "metaKeywords": meta_keywords,
+            "isCommentsDisabled": is_comments_disabled,
+            "limitMaxUsages": limit_max_usages
+        }
+        return await self._make_request("POST", f"/rest/Content/add/article/projectId/{project_id}", data=data)
+
     async def search_sites(
         self,
         project_id: int,
