@@ -362,6 +362,12 @@ class SerpzillaClient:
             params=params
         )
 
+    async def get_site_info(self, site_id: int) -> Dict[str, Any]:
+        """
+        Get full site card details for a given site ID.
+        """
+        return await self._make_request("GET", f"/rest/Site/{site_id}")
+
     async def purchase_placement(
         self,
         project_id: int,

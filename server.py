@@ -149,6 +149,21 @@ async def handle_list_tools() -> list[types.Tool]:
             }
         ),
         types.Tool(
+            name="get_site_info",
+            description="Get detailed information about a donor site (site card), including metrics, price, status, "
+                        "languages, statistics, etc.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "site_id": {
+                        "type": "integer",
+                        "description": "Site ID"
+                    }
+                },
+                "required": ["site_id"]
+            }
+        ),
+        types.Tool(
             name="purchase_placement",
             description="Purchase placement on selected site",
             inputSchema={
@@ -366,6 +381,12 @@ async def handle_call_tool(
             result = await client.search_sites(
                 project_id, link_type, **filters
             )
+
+        elif name == "get_site_info":
+            site_id = arguments.get("site_id")
+            if not site_id:
+                raise ValueError("site_id is required")
+            result = await client.get_site_info(site_id)
 
         elif name == "purchase_placement":
             project_id = arguments.get("project_id")
