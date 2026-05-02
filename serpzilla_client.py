@@ -434,6 +434,23 @@ class SerpzillaClient:
             params={"projectId": project_id}
         )
 
+    async def perform_placement_action(self, action: str, placement_ids: List[int]) -> Dict[str, Any]:
+        """
+        Perform an action on a list of placements.
+        Valid actions: force_billing_seo, approve_seo, approve_content_seo,
+                       approve_from_arbitration_seo, cancel_from_on_placement_seo,
+                       cancel_from_improve_seo, cancel_seo, terminate_seo,
+                       cancel_order_change_links_seo, price_changing_action_accept_seo,
+                       guarantee_wm, accept_order_change_links_wm,
+                       price_changing_action_reject_wm, delete_draft_seo,
+                       buy_from_buy_fail_seo, delete_from_buy_fail_seo.
+        """
+        data = {
+            "action": action,
+            "placementIds": placement_ids
+        }
+        return await self._make_request("PATCH", "/rest/Placement/action", data=data)
+
     async def get_user_info(self) -> Dict[str, Any]:
         """
         Get current user information including account balance

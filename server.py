@@ -228,6 +228,48 @@ async def handle_list_tools() -> list[types.Tool]:
             }
         ),
         types.Tool(
+            name="perform_placement_action",
+            description="Perform an action on one or more placements (e.g., approve, cancel). "
+                        "The list of allowed actions: force_billing_seo, approve_seo, approve_content_seo, "
+                        "approve_from_arbitration_seo, cancel_from_on_placement_seo, cancel_from_improve_seo, "
+                        "cancel_seo, terminate_seo, cancel_order_change_links_seo, price_changing_action_accept_seo, "
+                        "guarantee_wm, accept_order_change_links_wm, price_changing_action_reject_wm, "
+                        "delete_draft_seo, buy_from_buy_fail_seo, delete_from_buy_fail_seo.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "action": {
+                        "type": "string",
+                        "description": "Action to perform (see list)",
+                        "enum": [
+                            "force_billing_seo",
+                            "approve_seo",
+                            "approve_content_seo",
+                            "approve_from_arbitration_seo",
+                            "cancel_from_on_placement_seo",
+                            "cancel_from_improve_seo",
+                            "cancel_seo",
+                            "terminate_seo",
+                            "cancel_order_change_links_seo",
+                            "price_changing_action_accept_seo",
+                            "guarantee_wm",
+                            "accept_order_change_links_wm",
+                            "price_changing_action_reject_wm",
+                            "delete_draft_seo",
+                            "buy_from_buy_fail_seo",
+                            "delete_from_buy_fail_seo"
+                        ]
+                    },
+                    "placement_ids": {
+                        "type": "array",
+                        "description": "List of placement IDs to apply the action to",
+                        "items": {"type": "integer"}
+                    }
+                },
+                "required": ["action", "placement_ids"]
+            }
+        ),
+        types.Tool(
             name="get_user_info",
             description="Get current user information including account balance (balance field). To top up your "
                         "balance, visit: https://passport.serpzilla.com/deposit/",
@@ -362,6 +404,15 @@ async def handle_call_tool(
             if not project_id:
                 raise ValueError("project_id is required")
             result = await client.get_project_placements(project_id)
+
+        elif name == "perform_placement_action":
+            action = arguments.get("action")
+            placement_ids = arguments.get("placement_ids")
+            if not action or not placement_ids:
+                raise ValueError("action and placement_ids are required")
+            if not isinstance(placement_ids, list) or not all(isinstance(x, int) for x in placement_ids):
+                raise ValueError("placement_ids must be a list of integers")
+            result = await client.perform_placement_action(action, placement_ids)
 
         elif name == "get_user_info":
             result = await client.get_user_info()
