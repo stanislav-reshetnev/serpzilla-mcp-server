@@ -208,6 +208,57 @@ class SerpzillaClient:
         }
         return await self._make_request("POST", f"/rest/Content/add/article/projectId/{project_id}", data=data)
 
+    async def get_project_content_list(
+        self,
+        project_id: Optional[int] = None,
+        creation_source: Optional[int] = None,
+        substring_text: Optional[str] = None,
+        url_ids: Optional[List[int]] = None,
+        content_type: Optional[int] = None,
+        status: Optional[int] = None,
+        content_status_ids: Optional[List[int]] = None,
+        from_: Optional[int] = None,
+        limit: Optional[int] = None,
+        order_by: Optional[str] = None,
+        order_direction: Optional[str] = None,
+        async_url_id: Optional[int] = None,
+        show_async_content_load: Optional[bool] = None
+    ) -> Dict[str, Any]:
+        """
+        Get a filtered list of content (texts, articles) for a project.
+        """
+        params = {}
+        if project_id is not None:
+            params["projectId"] = project_id
+        if creation_source is not None:
+            params["creationSource"] = creation_source
+
+        data = {}
+        if substring_text is not None:
+            data["substringText"] = substring_text
+        if url_ids is not None:
+            data["urlIds"] = url_ids
+        if content_type is not None:
+            data["contentType"] = content_type
+        if status is not None:
+            data["status"] = status
+        if content_status_ids is not None:
+            data["contentStatusIds"] = content_status_ids
+        if from_ is not None:
+            data["from"] = from_
+        if limit is not None:
+            data["limit"] = limit
+        if order_by is not None:
+            data["orderBy"] = order_by
+        if order_direction is not None:
+            data["orderDirection"] = order_direction
+        if async_url_id is not None:
+            data["asyncUrlId"] = async_url_id
+        if show_async_content_load is not None:
+            data["showAsyncContentLoad"] = show_async_content_load
+
+        return await self._make_request("POST", "/rest/Content/list/", data=data, params=params)
+
     async def search_sites(
         self,
         project_id: int,

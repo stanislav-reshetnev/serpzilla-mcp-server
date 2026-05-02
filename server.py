@@ -229,6 +229,86 @@ async def handle_list_tools() -> list[types.Tool]:
             }
         ),
         types.Tool(
+            name="get_project_content_list",
+            description="Get a list of content (articles and texts) in a project with filtering, "
+                        "sorting, and pagination. "
+                        "Supports status, type, URL IDs, and search by substring.",
+            inputSchema={
+                "type": "object",
+                "properties": {
+                    "project_id": {
+                        "type": "integer",
+                        "description": "Project ID"
+                    },
+                    "creation_source": {
+                        "type": "integer",
+                        "description": "Source of content creation: 0 - user, 1 - system",
+                        "enum": [0, 1]
+                    },
+                    "substring_text": {
+                        "type": "string",
+                        "description": "Search by substring in content text"
+                    },
+                    "url_ids": {
+                        "type": "array",
+                        "description": "Filter by URL IDs",
+                        "items": {"type": "integer"}
+                    },
+                    "content_type": {
+                        "type": "integer",
+                        "description": "Content type: 1 - text, 3 - Guest Post",
+                        "enum": [1, 3]
+                    },
+                    "status": {
+                        "type": "integer",
+                        "description": "Content status: 0-Draft, 1-Creating, 2-Creation error, 3-AI article error, "
+                                       "5-Moderation, 6-Rejected, 7-AI article creation, 10-Active, 11-Changing, "
+                                       "20-Archived, 30-Deleted",
+                        "enum": [0, 1, 2, 3, 5, 6, 7, 10, 11, 20, 30]
+                    },
+                    "content_status_ids": {
+                        "type": "array",
+                        "description": "List of content status IDs",
+                        "items": {
+                            "type": "integer",
+                            "description": "Content status: 0-Draft, 1-Creating, 2-Creation error, 3-AI article error, "
+                                           "5-Moderation, 6-Rejected, 7-AI article creation, 10-Active, 11-Changing, "
+                                           "20-Archived, 30-Deleted",
+                            "enum": [0, 1, 2, 3, 5, 6, 7, 10, 11, 20, 30]
+                        }
+                    },
+                    "from": {
+                        "type": "integer",
+                        "description": "First entry position (offset)"
+                    },
+                    "limit": {
+                        "type": "integer",
+                        "description": "Number of records"
+                    },
+                    "order_by": {
+                        "type": "string",
+                        "description": "Sort field",
+                        "enum": ["createdAt", "text"]
+                    },
+                    "order_direction": {
+                        "type": "string",
+                        "description": "Sort direction",
+                        "enum": ["asc", "desc"]
+                    },
+                    "async_url_id": {
+                        "type": "integer",
+                        "description": "Async URL ID"
+                    },
+                    "show_async_content_load": {
+                        "type": "boolean",
+                        "description": "Show only contents in process of adding",
+                        "default": False
+                    }
+                },
+                "required": []
+            }
+        ),
+        types.Tool(
             name="get_project_placements",
             description="Get list of all placements in project",
             inputSchema={
@@ -327,6 +407,37 @@ async def handle_call_tool(
 
             result = await client.add_article(project_id, url, title, body, meta_title, meta_description, meta_keywords,
                                               is_comments_disabled, limit_max_usages)
+
+        elif name == "get_project_content_list":
+            project_id = arguments.get("project_id")
+            creation_source = arguments.get("creation_source")
+            substring_text = arguments.get("substring_text")
+            url_ids = arguments.get("url_ids")
+            content_type = arguments.get("content_type")
+            status = arguments.get("status")
+            content_status_ids = arguments.get("content_status_ids")
+            from_ = arguments.get("from")
+            limit = arguments.get("limit")
+            order_by = arguments.get("order_by")
+            order_direction = arguments.get("order_direction")
+            async_url_id = arguments.get("async_url_id")
+            show_async_content_load = arguments.get("show_async_content_load")
+
+            result = await client.get_project_content_list(
+                project_id=project_id,
+                creation_source=creation_source,
+                substring_text=substring_text,
+                url_ids=url_ids,
+                content_type=content_type,
+                status=status,
+                content_status_ids=content_status_ids,
+                from_=from_,
+                limit=limit,
+                order_by=order_by,
+                order_direction=order_direction,
+                async_url_id=async_url_id,
+                show_async_content_load=show_async_content_load
+            )
 
         elif name == "search_sites":
             project_id = arguments.get("project_id")
