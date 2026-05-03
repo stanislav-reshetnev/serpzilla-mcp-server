@@ -3,6 +3,7 @@ Client for working with Serpzilla API
 """
 
 import aiohttp
+import json
 import logging
 from typing import Dict, List, Any, Optional
 
@@ -123,6 +124,20 @@ class SerpzillaClient:
             headers["Content-Type"] = "application/json"
 
         url = f"{self.BASE_URL}{endpoint}"
+
+        log_headers = headers.copy()
+        if 'Authorization' in log_headers:
+            log_headers['Authorization'] = 'Bearer ***'
+        if 'Cookie' in log_headers:
+            log_headers['Cookie'] = 'AUTH_TICKET=***'
+        log_entry = {
+            "method": method,
+            "url": url,
+            "params": params,
+            "data": data,
+            "headers": log_headers
+        }
+        logger.info(f"API request: {json.dumps(log_entry, ensure_ascii=False)}")
 
         async with session.request(
             method=method,
@@ -435,9 +450,9 @@ class SerpzillaClient:
         """
         # Determine linkTypeId based on placement type
         link_type_map = {
-            "news": 20,      # Advertiser’s Article
-            "review": 21,    # Publisher’s Article
-            "link": 22,      # In The News
+            "link": 20,      # In The News
+            "news": 21,      # Advertiser’s Article
+            "review": 22,    # Publisher’s Article
             "archive": 23    # In The Archive
         }
 
@@ -453,9 +468,15 @@ class SerpzillaClient:
         if link_type == "news":
             if article_id:
                 link["articleId"] = article_id
+            if url_id:
+                link["urlsTexts"] = [{"urlId": url_id}]
+            else:
+                raise ValueError("url_id is required for news placements")
         else:
             if url_id and text_id:
                 link["urlsTexts"] = [{"urlId": url_id, "textId": text_id}]
+            else:
+                raise ValueError("url_id and text_id are required for this placement type")
 
         # Build request data
         data = {
@@ -463,7 +484,7 @@ class SerpzillaClient:
             "settings": {
                 "creditPeriod": 0,
                 "isContentNeedApproval": is_content_need_approval,
-                "nofPendingDays": 15,
+                "nofPendingDays": 5,
                 "warrantyPackage": 2,
                 "discountWanted": [],
                 "isLinkTextFinal": False,

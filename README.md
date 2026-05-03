@@ -48,7 +48,7 @@ cd serpzilla-mcp-server
 docker build -t serpzilla-mcp-stdio-server:latest .
 ```
 
-3. **Run the container**
+3. **Run the container (without logging)**
 ```bash
 docker run -i --rm \
   -e SERPZILLA_LOGIN="your_email@example.com" \
@@ -57,6 +57,30 @@ docker run -i --rm \
 {"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"0.1.0","clientInfo":{"name":"cli-test","version":"1.0.0"},"capabilities":{}}}
 EOF
 ```
+
+4. **Run with logging to a file**
+
+To enable logs (controlled by ENABLE_LOGS=true), mount a log file from the host:
+
+```bash
+# Create an empty log file on the host and set permissions
+touch /var/log/serpzilla-mcp-stdio-server.log
+chmod 666 /var/log/serpzilla-mcp-stdio-server.log
+
+docker run -i --rm \
+  -v /var/log/serpzilla-mcp-stdio-server.log:/var/log/serpzilla-mcp-stdio-server.log \
+  -e SERPZILLA_LOGIN="your_email@example.com" \
+  -e SERPZILLA_API_TOKEN="your_api_token" \
+  -e ENABLE_LOGS="true" \
+  serpzilla-mcp-stdio-server:latest <<EOF
+{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"0.1.0","clientInfo":{"name":"cli-test","version":"1.0.0"},"capabilities":{}}}
+EOF
+
+# After the container exits, inspect the logs:
+cat /var/log/serpzilla-mcp-stdio-server.log
+```
+
+Make sure the file exists and is writable by the container's user before starting.
 
 ### Using Python Directly
 
@@ -74,10 +98,11 @@ python server.py
 
 ## Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `SERPZILLA_LOGIN` | Your Serpzilla account email | Yes |
+| Variable              | Description | Required |
+|-----------------------|-------------|----------|
+| `SERPZILLA_LOGIN`     | Your Serpzilla account email | Yes |
 | `SERPZILLA_API_TOKEN` | Your Serpzilla API token | Yes |
+| `ENABLE_LOGS`         | Set to `true` to write logs to /var/log/serpzilla-mcp-stdio-server.log | No (default false) |
 
 ## Available Tools
 
@@ -119,7 +144,7 @@ Add to your OpenClaw configuration:
 
 ```bash
 npx mcporter config add serpzilla --stdio \
- "docker run -i --rm --env SERPZILLA_LOGIN=XXX --env SERPZILLA_API_TOKEN=XXX serpzilla-mcp-stdio-server"
+ "docker run -i --rm --env SERPZILLA_LOGIN=XXX --env SERPZILLA_API_TOKEN=XXX serpzilla-mcp-stdio-server:latest"
 ```
 
 ## Project Structure

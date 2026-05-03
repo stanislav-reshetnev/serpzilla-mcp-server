@@ -15,10 +15,23 @@ import mcp.types as types
 from serpzilla_client import SerpzillaClient
 
 # Logging setup
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+LOG_FILE = "/var/log/serpzilla-mcp-stdio-server.log"
+ENABLE_LOGS = os.environ.get("ENABLE_LOGS", "false").lower() == "true"
+
+if ENABLE_LOGS:
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.FileHandler(LOG_FILE)
+        ]
+    )
+else:
+    logging.basicConfig(
+        level=logging.CRITICAL + 1,
+        handlers=[]
+    )
+
 logger = logging.getLogger(__name__)
 
 # Getting credentials from environment variables
@@ -179,15 +192,15 @@ async def handle_list_tools() -> list[types.Tool]:
                     },
                     "url_id": {
                         "type": "integer",
-                        "description": "Promoted URL ID"
+                        "description": "Promoted URL ID (required for all placement types)"
                     },
                     "text_id": {
                         "type": "integer",
-                        "description": "Text ID (for link, review, archive)"
+                        "description": "Text ID (required for review, link, archive; not used for news)"
                     },
                     "article_id": {
                         "type": "integer",
-                        "description": "Article ID (for news)"
+                        "description": "Article ID (required for news placements)"
                     },
                     "link_type": {
                         "type": "string",
@@ -382,6 +395,13 @@ async def handle_call_tool(
     Handling tool calls
     """
     try:
+        # Log tool call with arguments
+        logger.info(
+            "Tool call: %s, arguments: %s",
+            name,
+            json.dumps(arguments, ensure_ascii=False) if arguments else "null"
+        )
+
         if name == "authorize":
             result = await client.authorize()
 
@@ -512,10 +532,11 @@ async def handle_call_tool(
             if not project_id or not site_id or not link_type:
                 raise ValueError("project_id, site_id and link_type are required")
 
-            # If it's a news article, article_id is needed; otherwise url_id and text_id are needed
             if link_type == "news":
                 if not article_id:
                     raise ValueError("article_id is required for news placements")
+                if not url_id:
+                    raise ValueError("url_id is required for news placements")
             else:
                 if not url_id or not text_id:
                     raise ValueError("url_id and text_id are required for this placement type")
@@ -569,19 +590,22 @@ async def main():
     """
     Running MCP server
     """
-    async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
-        await app.run(
-            read_stream,
-            write_stream,
-            InitializationOptions(
-                server_name="serpzilla-mcp-server",
-                server_version="1.0.0",
-                capabilities=app.get_capabilities(
-                    notification_options=NotificationOptions(),
-                    experimental_capabilities={},
+    try:
+        async with mcp.server.stdio.stdio_server() as (read_stream, write_stream):
+            await app.run(
+                read_stream,
+                write_stream,
+                InitializationOptions(
+                    server_name="serpzilla-mcp-server",
+                    server_version="1.0.0",
+                    capabilities=app.get_capabilities(
+                        notification_options=NotificationOptions(),
+                        experimental_capabilities={},
+                    ),
                 ),
-            ),
-        )
+            )
+    finally:
+        await client.close()
 
 
 if __name__ == "__main__":
