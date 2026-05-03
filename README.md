@@ -111,10 +111,13 @@ python server.py
 | `authorize` | Authenticate with Serpzilla API |
 | `list_projects` | Get list of existing projects |
 | `create_project` | Create new project for domain promotion |
+| `add_article` | Create a new Guest Post article (Advertiser’s Article) with anchors and meta data. Returns articleId and urlId needed for purchase |
+| `get_project_content_list` | Get a filtered list of content (articles and texts) in a project with search, status filtering, sorting, and pagination |
 | `search_sites` | Search donor sites with filters |
+| `get_site_info` | Get detailed site card: metrics, status, prices, languages, placement examples, and more |
 | `purchase_placement` | Buy placement on selected site |
-| `add_text` | Add text with anchor for URL promotion |
 | `get_project_placements` | Get all placements in a project |
+| `perform_placement_action` | Perform bulk actions on placements (approve, cancel, delete draft, etc.) |
 | `get_user_info` | Get current user information including account balance. To top up your balance, visit: https://passport.serpzilla.com/deposit/ |
 
 ## Usage Example
